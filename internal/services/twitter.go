@@ -3,12 +3,13 @@ package services
 import (
 	"sync"
 	"twitter-lld/internal/domain"
+	"twitter-lld/internal/interfaces"
 )
 
 type Twitter struct {
-	FeedService  *FeedService
-	TweetService *TweetService
-	UserService  *UserService
+	FeedService  interfaces.FeedService
+	TweetService interfaces.TweetService
+	UserService  interfaces.UserService
 }
 
 var (
@@ -18,11 +19,14 @@ var (
 
 func NewTwiter() *Twitter {
 	TwitterOnce.Do(func() {
+		tweetService := NewTweetService()
+		userService := NewUserService()
+
 		TwitterInst = &Twitter{
-			TweetService: NewTweetService(),
-			UserService:  NewUserService(),
+			TweetService: tweetService,
+			UserService:  userService,
 		}
-		TwitterInst.FeedService = NewFeedService(TwitterInst.TweetService)
+		TwitterInst.FeedService = NewFeedService(tweetService)
 	})
 	return TwitterInst
 }
