@@ -1,7 +1,6 @@
 package services
 
 import (
-	"sync"
 	"twitter-lld/internal/domain"
 	"twitter-lld/internal/interfaces"
 )
@@ -12,23 +11,18 @@ type Twitter struct {
 	UserService  interfaces.UserService
 }
 
-var (
-	TwitterInst *Twitter
-	TwitterOnce sync.Once
-)
-
-func NewTwiter() *Twitter {
-	TwitterOnce.Do(func() {
-		tweetService := NewTweetService()
-		userService := NewUserService()
-
-		TwitterInst = &Twitter{
-			TweetService: tweetService,
-			UserService:  userService,
-		}
-		TwitterInst.FeedService = NewFeedService(tweetService)
-	})
-	return TwitterInst
+// NewTwitter constructs a Twitter facade from its dependencies.
+// Using interface types here respects the Dependency Inversion Principle.
+func NewTwitter(
+	tweetService interfaces.TweetService,
+	userService interfaces.UserService,
+	feedService interfaces.FeedService,
+) *Twitter {
+	return &Twitter{
+		TweetService: tweetService,
+		UserService:  userService,
+		FeedService:  feedService,
+	}
 }
 
 func (t *Twitter) Tweet(tweet domain.Tweet) int {

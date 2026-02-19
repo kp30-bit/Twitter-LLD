@@ -18,7 +18,13 @@ func main() {
 		Followers: make(map[int]*domain.User),
 	}
 
-	Twitter := services.NewTwiter()
+	// construct concrete services
+	tweetService := services.NewTweetService()
+	userService := services.NewUserService()
+	feedService := services.NewFeedService(tweetService)
+
+	// inject them into the Twitter facade via interfaces
+	Twitter := services.NewTwitter(tweetService, userService, feedService)
 	Twitter.UserService.AddUser(Alice)
 	Twitter.UserService.AddUser(Bob)
 	Twitter.Follow(Alice.Id, Bob.Id)
